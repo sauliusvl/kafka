@@ -30,6 +30,8 @@ import org.apache.kafka.connect.runtime.rest.entities.ConnectorInfo;
 import org.apache.kafka.connect.runtime.standalone.StandaloneConfig;
 import org.apache.kafka.connect.runtime.standalone.StandaloneHerder;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
+import org.apache.kafka.connect.storage.KafkaOffsetBackingStore;
+import org.apache.kafka.connect.storage.OffsetBackingStore;
 import org.apache.kafka.connect.util.Callback;
 import org.apache.kafka.connect.util.FutureCallback;
 import org.slf4j.Logger;
@@ -80,7 +82,16 @@ public class ConnectStandalone {
         URI advertisedUrl = rest.advertisedUrl();
         String workerId = advertisedUrl.getHost() + ":" + advertisedUrl.getPort();
 
-        Worker worker = new Worker(workerId, time, plugins, config, new FileOffsetBackingStore());
+        OffsetBackingStore offsetStore;
+        String offsetStoreType = config.getString(StandaloneConfig.OFFSET_STORAGE_STORE_CONFIG);
+
+        if (offsetStoreType.equals("file")) {
+            offsetStore = new FileOffsetBackingStore();
+        } else {
+            offsetStore = new KafkaOffsetBackingStore();
+        }
+
+        Worker worker = new Worker(workerId, time, plugins, config, offsetStore);
 
         Herder herder = new StandaloneHerder(worker);
         final Connect connect = new Connect(herder, rest);
