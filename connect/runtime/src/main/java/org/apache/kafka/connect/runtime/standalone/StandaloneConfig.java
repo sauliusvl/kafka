@@ -18,11 +18,20 @@ package org.apache.kafka.connect.runtime.standalone;
 
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.runtime.WorkerConfig;
+import org.apache.kafka.connect.runtime.distributed.DistributedConfig;
 
 import java.util.Map;
 
+import static org.apache.kafka.common.config.ConfigDef.Range.atLeast;
+
 public class StandaloneConfig extends WorkerConfig {
     private static final ConfigDef CONFIG;
+
+    /**
+     * <code>offset.storage.store</code>
+     */
+    public static final String OFFSET_STORAGE_STORE_CONFIG = "offset.storage.store";
+    private static final String OFFSET_STORAGE_STORE_DOC = "Offset store to use, can be either file or kafka";
 
     /**
      * <code>offset.storage.file.filename</code>
@@ -32,6 +41,28 @@ public class StandaloneConfig extends WorkerConfig {
 
     static {
         CONFIG = baseConfigDef()
+                .define(OFFSET_STORAGE_STORE_CONFIG,
+                        ConfigDef.Type.STRING,
+                        "file",
+                        ConfigDef.ValidList.in("file", "kafka"),
+                        ConfigDef.Importance.HIGH,
+                        OFFSET_STORAGE_STORE_DOC)
+                .define(DistributedConfig.OFFSET_STORAGE_TOPIC_CONFIG,
+                        ConfigDef.Type.STRING,
+                        ConfigDef.Importance.HIGH,
+                        "")
+                .define(DistributedConfig.OFFSET_STORAGE_PARTITIONS_CONFIG,
+                        ConfigDef.Type.INT,
+                        25,
+                        atLeast(1),
+                        ConfigDef.Importance.LOW,
+                        "")
+                .define(DistributedConfig.OFFSET_STORAGE_REPLICATION_FACTOR_CONFIG,
+                        ConfigDef.Type.SHORT,
+                        (short) 3,
+                        atLeast(1),
+                        ConfigDef.Importance.LOW,
+                        "")
                 .define(OFFSET_STORAGE_FILE_FILENAME_CONFIG,
                         ConfigDef.Type.STRING,
                         ConfigDef.Importance.HIGH,
