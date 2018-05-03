@@ -44,7 +44,7 @@ public class StandaloneConfig extends WorkerConfig {
                 .define(OFFSET_STORAGE_STORE_CONFIG,
                         ConfigDef.Type.STRING,
                         "file",
-                        ConfigDef.ValidList.in("file", "kafka"),
+                        ConfigDef.ValidString.in("file", "kafka"),
                         ConfigDef.Importance.HIGH,
                         OFFSET_STORAGE_STORE_DOC)
                 .define(DistributedConfig.OFFSET_STORAGE_TOPIC_CONFIG,
